@@ -1,0 +1,52 @@
+version: '3.9'
+
+services:
+  stripe-cli:
+    image: stripe/stripe-cli
+    container_name: serbit-stripe-cli
+    network_mode: host
+    command: 'listen --api-key ${STRIPE_API_KEY} --device-name ${STRIPE_DEVICE_NAME} --forward-to http://localhost:3000/sw'
+    env_file:
+      - .env
+  main:
+    container_name: serbit-main
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - ${SERVER_PORT:-3000}:${SERVER_PORT:-3000}
+      - 9229:9229
+    command: npm run start:dev
+    env_file:
+      - .env
+    networks:
+      - webnet
+    depends_on:
+      - redis
+      - postgres
+  redis:
+    container_name: serbit-redis
+    image: redis:7
+    networks:
+      - webnet
+  postgres:
+    container_name: serbit-postgres
+    image: postgres:15
+    networks:
+      - webnet
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-serbit}
+      POSTGRES_USER: ${DB_USERNAME:-serbit}
+      POSTGRES_DB: ${DB_DATABASE_NAME:-serbit}
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - 5433:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+networks:
+  webnet:
+volumes:
+  pgdata:
