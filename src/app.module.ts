@@ -4,6 +4,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import config from './config';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
+import { JwtService } from '@nestjs/jwt';
+import { ItemsModule } from './items/items.module';
+import { TeamsModule } from './teams/teams.module';
 
 @Module({
   imports: [
@@ -27,8 +32,16 @@ import config from './config';
     }),
     UsersModule,
     AuthModule,
+    ItemsModule,
+    TeamsModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    JwtService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class AppModule {}
