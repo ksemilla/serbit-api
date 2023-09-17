@@ -2,19 +2,25 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
 } from '@nestjs/common';
-import { TeamsService } from './teams.service';
+import { MembersService, TeamsService } from './teams.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { CreateResult } from 'src/interfaces';
-import { Team } from './teams.entity';
+import { Member, Team } from './teams.entity';
 import slugify from 'slugify';
+import { AddMemberDto } from './dto/add-team-member.dto';
+import { CreateMemberDto } from './dto/create-member.dto';
 
 @Controller('teams')
 export class TeamsController {
-  constructor(private readonly teamsService: TeamsService) {}
+  constructor(
+    private readonly teamsService: TeamsService,
+    private readonly membersService: MembersService,
+  ) {}
 
   @Post()
   async create(@Body() createTeamDto: CreateTeamDto): Promise<CreateResult> {
@@ -41,7 +47,11 @@ export class TeamsController {
 
   @Get()
   async list(): Promise<{ list: Team[]; count: number }> {
-    const [data, count] = await this.teamsService.find();
+    const [data, count] = await this.teamsService.find({
+      relations: {
+        owner: true,
+      },
+    });
     return {
       list: data,
       count,
@@ -58,5 +68,47 @@ export class TeamsController {
         members: true,
       },
     });
+  }
+
+  @Delete(':id')
+  async deleteTeam(@Param('id') id: number): Promise<number> {
+    return (await this.teamsService.delete(id)).affected;
+  }
+
+  @Post('/:id/members/')
+  async addMember(@Param('id') id: number, @Body() addMemberDto: AddMemberDto) {
+    const team = await this.teamsService.findOne({
+      where: {
+        id,
+      },
+    });
+
+    const member = await this.membersService.create({
+      user: addMemberDto.user,
+      team,
+    });
+
+    return;
+  }
+
+  @Get('/:id/members/')
+  async memberList(@Param('id') id: number): Promise<Member[]> {
+    const team = await this.teamsService.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        members: true,
+      },
+    });
+    return team.members ?? [];
+  }
+
+  @Delete(':id/members/:memberId/')
+  async deleteMember(
+    @Param('id') id: number,
+    @Param('memberId') memberId: number,
+  ): Promise<number> {
+    return (await this.membersService.delete(memberId)).affected;
   }
 }

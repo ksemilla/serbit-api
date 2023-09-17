@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Team } from './teams.entity';
-import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import { Member, Team } from './teams.entity';
+import {
+  DeleteResult,
+  FindManyOptions,
+  FindOneOptions,
+  Repository,
+} from 'typeorm';
 import { CreateTeamDto } from './dto/create-team.dto';
+import { CreateMemberDto } from './dto/create-member.dto';
 
 @Injectable()
 export class TeamsService {
@@ -21,5 +27,35 @@ export class TeamsService {
 
   async create(data: CreateTeamDto): Promise<Team> {
     return this.teamsRepository.save(data);
+  }
+  async delete(id: number): Promise<DeleteResult> {
+    return this.teamsRepository.delete({
+      id,
+    });
+  }
+}
+
+@Injectable()
+export class MembersService {
+  constructor(
+    @InjectRepository(Member)
+    private readonly membersRepository: Repository<Member>,
+  ) {}
+
+  async find(options?: FindManyOptions<Member>): Promise<[Member[], number]> {
+    return this.membersRepository.findAndCount(options);
+  }
+
+  async findOne(options?: FindOneOptions<Member>): Promise<Member> {
+    return this.membersRepository.findOne(options);
+  }
+
+  async create(data: CreateMemberDto): Promise<Member> {
+    return this.membersRepository.save(data);
+  }
+  async delete(id: number): Promise<DeleteResult> {
+    return this.membersRepository.delete({
+      id,
+    });
   }
 }

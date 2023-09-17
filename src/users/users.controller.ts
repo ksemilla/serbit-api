@@ -62,6 +62,7 @@ export class UsersController {
       },
       relations: {
         members: true,
+        ownedTeams: true,
       },
     });
   }

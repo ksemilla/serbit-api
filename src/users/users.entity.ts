@@ -1,4 +1,4 @@
-import { Member } from 'src/teams/teams.entity';
+import { Member, Team } from 'src/teams/teams.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 export enum UserRole {
@@ -34,4 +34,7 @@ export class User {
 
   @OneToMany(() => Member, (member) => member.user)
   members: Member[];
+
+  @OneToMany(() => Team, (t) => t.owner)
+  ownedTeams: Team[];
 }
