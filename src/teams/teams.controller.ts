@@ -13,7 +13,6 @@ import { CreateResult } from 'src/interfaces';
 import { Member, Team } from './teams.entity';
 import slugify from 'slugify';
 import { AddMemberDto } from './dto/add-team-member.dto';
-import { CreateMemberDto } from './dto/create-member.dto';
 
 @Controller('teams')
 export class TeamsController {
@@ -76,19 +75,21 @@ export class TeamsController {
   }
 
   @Post('/:id/members/')
-  async addMember(@Param('id') id: number, @Body() addMemberDto: AddMemberDto) {
+  async addMember(
+    @Param('id') id: number,
+    @Body() addMemberDto: AddMemberDto,
+  ): Promise<Member> {
     const team = await this.teamsService.findOne({
       where: {
         id,
       },
     });
 
-    const member = await this.membersService.create({
+    return await this.membersService.create({
       user: addMemberDto.user,
       team,
+      nickName: addMemberDto.nickName,
     });
-
-    return;
   }
 
   @Get('/:id/members/')
@@ -110,5 +111,27 @@ export class TeamsController {
     @Param('memberId') memberId: number,
   ): Promise<number> {
     return (await this.membersService.delete(memberId)).affected;
+  }
+}
+
+@Controller('members')
+export class MembersController {
+  constructor(
+    private readonly teamsService: TeamsService,
+    private readonly membersService: MembersService,
+  ) {}
+
+  @Get()
+  async list(): Promise<{ list: Member[]; count: number }> {
+    const [data, count] = await this.membersService.find({});
+    return {
+      list: data,
+      count,
+    };
+  }
+
+  @Delete(':id')
+  async deleteMember(@Param('id') id: number): Promise<number> {
+    return (await this.membersService.delete(id)).affected;
   }
 }

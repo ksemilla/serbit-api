@@ -6,8 +6,6 @@ import {
   ManyToOne,
   OneToMany,
   Index,
-  OneToOne,
-  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -31,6 +29,10 @@ export class Team {
   members: Member[];
 }
 
+export enum MemberRole {
+  ADMIN = 'admin',
+}
+
 @Entity()
 export class Member {
   @PrimaryGeneratedColumn()
@@ -42,6 +44,12 @@ export class Member {
   })
   team: Team;
 
-  @ManyToOne(() => User, (user) => user.members)
+  @ManyToOne(() => User, (user) => user.members, {
+    cascade: true,
+    eager: true,
+  })
   user: User;
+
+  @Column()
+  nickName: string;
 }

@@ -3,9 +3,11 @@ import { User } from 'src/users/users.entity';
 import { Team } from '../teams.entity';
 
 export class CreateMemberDto {
-  @IsNotEmpty()
   user: User;
 
   @IsNotEmpty()
   team: Team;
+
+  @IsNotEmpty()
+  nickName: string;
 }
