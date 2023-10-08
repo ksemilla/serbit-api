@@ -1,9 +1,23 @@
-import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm';
+import { Team } from 'src/teams/teams.entity';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  Index,
+  ManyToOne,
+} from 'typeorm';
 
 @Entity()
 export class Item {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @ManyToOne(() => Team, (team) => team.items, {
+    cascade: true,
+    eager: true,
+  })
+  @Index()
+  team: Team;
 
   @Column({ unique: true })
   partNumber: string;

@@ -9,6 +9,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { JwtService } from '@nestjs/jwt';
 import { ItemsModule } from './items/items.module';
 import { TeamsModule } from './teams/teams.module';
+import { VendorsModule } from './vendors/vendors.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { TeamsModule } from './teams/teams.module';
     AuthModule,
     ItemsModule,
     TeamsModule,
+    VendorsModule,
   ],
   controllers: [],
   providers: [

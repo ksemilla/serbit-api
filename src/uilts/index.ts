@@ -22,6 +22,13 @@ export class IsUniqueContstraint implements ValidatorConstraintInterface {
     const object = await repository.findOneBy({
       [args.property]: v,
     });
+
+    const data = args.object as any;
+
+    if (data?.id) {
+      return data.id === object.id;
+    }
+
     return !object;
   }
 

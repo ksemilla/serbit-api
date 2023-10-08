@@ -1,3 +1,4 @@
+import { Item } from 'src/items/items.entity';
 import { User } from 'src/users/users.entity';
 import {
   Entity,
@@ -27,6 +28,9 @@ export class Team {
 
   @OneToMany(() => Member, (member) => member.team)
   members: Member[];
+
+  @OneToMany(() => Item, (item) => item.team)
+  items: Item[];
 }
 
 export enum MemberRole {

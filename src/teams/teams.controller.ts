@@ -91,23 +91,34 @@ export class TeamsController {
       nickName: addMemberDto.nickName,
     });
   }
+}
 
-  @Get('/:id/members/')
-  async memberList(@Param('id') id: number): Promise<Member[]> {
-    const team = await this.teamsService.findOne({
+@Controller('teams/:teamId/members/')
+export class TeamMembersController {
+  constructor(
+    private readonly teamsService: TeamsService,
+    private readonly membersService: MembersService,
+  ) {}
+  @Get()
+  async list(
+    @Param('teamId') teamId: number,
+  ): Promise<{ list: Member[]; count: number }> {
+    const [members, count] = await this.membersService.find({
       where: {
-        id,
-      },
-      relations: {
-        members: true,
+        team: {
+          id: teamId,
+        },
       },
     });
-    return team.members ?? [];
+    return {
+      list: members,
+      count,
+    };
   }
 
-  @Delete(':id/members/:memberId/')
+  @Delete(':memberId')
   async deleteMember(
-    @Param('id') id: number,
+    @Param('teamId') teamId: number,
     @Param('memberId') memberId: number,
   ): Promise<number> {
     return (await this.membersService.delete(memberId)).affected;
@@ -116,10 +127,7 @@ export class TeamsController {
 
 @Controller('members')
 export class MembersController {
-  constructor(
-    private readonly teamsService: TeamsService,
-    private readonly membersService: MembersService,
-  ) {}
+  constructor(private readonly membersService: MembersService) {}
 
   @Get()
   async list(): Promise<{ list: Member[]; count: number }> {
@@ -133,5 +141,14 @@ export class MembersController {
   @Delete(':id')
   async deleteMember(@Param('id') id: number): Promise<number> {
     return (await this.membersService.delete(id)).affected;
+  }
+
+  @Get(':id')
+  async getMember(@Param('id') id: number): Promise<Member> {
+    return this.membersService.findOne({
+      where: {
+        id,
+      },
+    });
   }
 }
