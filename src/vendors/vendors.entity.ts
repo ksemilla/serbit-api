@@ -21,6 +21,15 @@ export class Vendor {
   @Index()
   name: string;
 
+  @Column({ default: '' })
+  mobile: string;
+
+  @Column({ default: '' })
+  phone: string;
+
+  @Column({ default: '' })
+  notes: string;
+
   @Index()
   @Column({ default: true })
   isActive: boolean;

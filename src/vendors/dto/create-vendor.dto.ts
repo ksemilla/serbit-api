@@ -17,6 +17,10 @@ export class CreateVendorDto {
   @IsUnique({ repository: Vendor })
   name: string;
 
+  mobile: string;
+  phone: string;
+  notes: string;
+
   @ValidateNested({ each: true })
   @Type(() => CreateVendorContactDto)
   vendorContacts: CreateVendorContactDto[];
