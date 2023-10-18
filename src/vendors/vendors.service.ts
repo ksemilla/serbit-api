@@ -12,6 +12,7 @@ import {
   CreateVendorContactDto,
   CreateVendorDto,
 } from './dto/create-vendor.dto';
+import { EditVendorDto } from './dto/edit-vendor.dto';
 
 @Injectable()
 export class VendorsService {
@@ -31,7 +32,6 @@ export class VendorsService {
   }
 
   async create(data: CreateVendorDto): Promise<Vendor> {
-    console.log('got here', data);
     const vendor = await this.vendorsRepository.save(data);
 
     data.vendorContacts.map(async (vc) => {
@@ -48,9 +48,38 @@ export class VendorsService {
       id,
     });
   }
-  // async updateOne(id: number, data: EditVendorDto): Promise<UpdateResult> {
-  //   return this.vendorsRepository.update({ id }, data);
-  // }
+  async updateOne(id: number, data: EditVendorDto): Promise<Vendor> {
+    const { vendorContacts, ...rest } = data;
+
+    let vendor = await this.vendorsRepository.save(rest);
+
+    const vendorContactIds = await Promise.all(
+      vendorContacts.map(async (vc) => {
+        const vendorContact = await this.vendorContactsRepository.save({
+          ...vc,
+          vendor,
+        });
+        return vendorContact.id;
+      }),
+    );
+
+    vendor = await this.vendorsRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        vendorContacts: true,
+      },
+    });
+
+    vendor.vendorContacts.forEach(async (vc) => {
+      if (!vendorContactIds.includes(vc.id)) {
+        await this.vendorContactsRepository.remove(vc);
+      }
+    });
+
+    return vendor;
+  }
 }
 
 @Injectable()

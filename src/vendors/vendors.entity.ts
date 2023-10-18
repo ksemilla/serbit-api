@@ -22,6 +22,9 @@ export class Vendor {
   name: string;
 
   @Column({ default: '' })
+  email: string;
+
+  @Column({ default: '' })
   mobile: string;
 
   @Column({ default: '' })

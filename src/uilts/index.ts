@@ -25,7 +25,7 @@ export class IsUniqueContstraint implements ValidatorConstraintInterface {
 
     const data = args.object as any;
 
-    if (data?.id) {
+    if (data?.id && object) {
       return data.id === object.id;
     }
 
